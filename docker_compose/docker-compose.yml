@@ -8,6 +8,10 @@ services:
     image: postgres:10-alpine
     restart: always
     ports: ["5433:5432"]
+    volumes:
+      - /tmp/data:/var/lib/postgresql/data/pg_data
+    environment:
+      - PGDATA='/var/lib/postgresql/data/pg_data'
   redis_host:
     image: redis:4.0.11-alpine
     restart: always
