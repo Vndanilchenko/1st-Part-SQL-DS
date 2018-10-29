@@ -20,10 +20,10 @@ limit 10;
 
 
 --3. Агрегация
-select count(movieid) 
-from ratings 
-where rating is null
-limit 10;
+select count(l.movieid) 
+from links l left join ratings r 
+	on l.movieid=r.movieid 
+where r.rating is null;
 
 select userid 
 from ratings 
