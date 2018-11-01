@@ -1,0 +1,63 @@
+------------------------------------- ДОМАШНЕЕ ЗАДАНИЕ 3 --------------------------------------
+SELECT ('ФИО: Данильченко Вадим');
+
+-- ЗАПРОС 1
+select ('1. ОКОННЫЕ ФУНКЦИИ')
+select userid, movieid, rating, min(rating) over(partition by userid) min_rating, max(rating) over(partition by userid) max_rating,(rating-min(rating) over(partition by userid))/(max(rating) over(partition by userid)-min(rating) over(partition by userid)) normed_rating, avg(rating) over(partition by userid) avg_rating 
+from ratings
+limit 30;
+
+
+--  ЗАПРОС 2 - создадим таблицу keywords
+select ('2. создание таблицы');
+--psql --host $APP_POSTGRES_HOST -U postgres -c "create table keywords(id int, tags varchar);"
+select * from keywords;
+/*
+ id | tags 
+----+------
+(0 rows)
+*/
+--  сделаем экстракт из keywords.csv в keywords
+select ('посмотрим на файл: # cat /data/keywords.csv');
+select ('разделитель между разными типами запятая');
+--'скопируем данные из .csv в таблицу keywords: 
+--# psql --host $APP_POSTGRES_HOST -U postgres -c "\\copy keywords from '/data/keywords.csv' DELIMITER ',' CSV HEADER" ')
+select count(*) from keywords;
+/*
+ count 
+-------
+ 46419
+(1 row)
+select * from keywords;
+*/
+select ('ЗАПРОС3: top_rated');
+with top_rated as (
+	select * 
+	from (select distinct  movieid, avg(rating) over (partition by movieid) avg_rating 
+		from ratings 
+		where movieid in (select distinct movieid 
+				from ratings 
+				group by movieid 
+				having count(ratings)>50) 
+		order by avg_rating desc, movieid asc limit 150) ЗАПРОС1 
+	left join (select * from keywords) ЗАПРОС2 on ЗАПРОС1.movieid=ЗАПРОС2.id) 
+select movieid, avg_rating, tags
+into top_rated_tags 
+from top_rated;
+-- проверим конечную таблицу
+select count(*) from top_rated_tags;
+/*
+ count 
+-------
+   150
+(1 row)
+*/
+
+
+-- выгрузим в файл
+select ('ВЫГРУЖАЕМ В ФАЙЛ: ');
+-- # psql --host $APP_POSTGRES_HOST -U postgres -c "\\copy (SELECT * FROM top_rated_tags) TO '/data/tags.tsv' DELIMITER E'\t'"
+/*
+COPY 150
+*/
+
