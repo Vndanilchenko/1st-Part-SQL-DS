@@ -76,7 +76,7 @@ select movieid, count(imdbid) from links_parted_1 group by movieid;
        1 |     1
 (2 rows)
 */
--- проверим исходную таблицу - вставлены только 3 id: 1 и 2 при тестировании иходной таблицы, 5 при запси на партицию
+-- проверим исходную таблицу - вставлены только 3 id: 1 и 2 при тестировании иходной таблицы, 5 при записи на партицию
 select movieid, count(imdbid) from links_parted group by movieid;
 /*
  movieid | count 
